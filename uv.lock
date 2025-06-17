@@ -261,7 +261,7 @@ wheels = [
 
 [[package]]
 name = "cli-base-utilities"
-version = "0.17.1"
+version = "0.18.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bx-py-utils" },
@@ -272,9 +272,9 @@ dependencies = [
     { name = "tomlkit" },
     { name = "tyro" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/4d/2975f6926213c37c1b32377212c1aa30a7191481027ffbbe5f2951bfdf60/cli_base_utilities-0.17.1.tar.gz", hash = "sha256:b978e1ee3ca2dd8662d982d495743c3f793daba64420f36f9bdb041dc0c983bf", size = 123137, upload-time = "2025-06-02T09:16:26.796Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/a1/af554951f97089e65781b4027b8c724d97012347db0257c7ddd598f3af5c/cli_base_utilities-0.18.0.tar.gz", hash = "sha256:6b0f98b0a41f87d3866458c94fad8b0f3a875f8e9d41166ed21a3eed421531b2", size = 122459, upload-time = "2025-06-17T17:32:23.187Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cf/8b/a7d561658e4df62fcbdb515e08e0e9bce63f9277231a7593edbc297b12db/cli_base_utilities-0.17.1-py3-none-any.whl", hash = "sha256:8aa9b1c47e3b34f38273df0027add4714f2a3267f9b807c8e7ac6d4cb68f447d", size = 84199, upload-time = "2025-06-02T09:16:25.36Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/ce/51839be6bf253160a8ac1e3a53392c6c670d18d1e3493446262f23c26a43/cli_base_utilities-0.18.0-py3-none-any.whl", hash = "sha256:92a1269aa98df616251dcb761f2d74aa74d67d89555a66a86488620ab0d45942", size = 84361, upload-time = "2025-06-17T17:32:21.449Z" },
 ]
 
 [[package]]
@@ -658,7 +658,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cli-base-utilities" },
+    { name = "cli-base-utilities", specifier = ">=0.18.0" },
     { name = "frozendict" },
     { name = "msgspec" },
     { name = "paho-mqtt" },
