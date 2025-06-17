@@ -124,7 +124,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
-* [**dev**](https://github.com/jedie/ha-services/compare/v2.10.0...main)
+* [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
+  * 2025-06-17 - Add and send "qos" and "retain"
   * 2025-06-16 - Update requirements
 * [v2.10.0](https://github.com/jedie/ha-services/compare/v2.9.0...v2.10.0)
   * 2025-04-08 - Optional validation of sensor states

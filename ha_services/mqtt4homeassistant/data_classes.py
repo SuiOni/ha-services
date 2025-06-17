@@ -39,6 +39,8 @@ class ComponentState:
 class ComponentConfig:
     topic: str
     payload: dict
+    qos: int = 0
+    retain: bool = True  # retain by default, so Home Assistant can discover the component
 
 
 @dataclasses.dataclass
