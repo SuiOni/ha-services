@@ -49,10 +49,30 @@ class NetStatSensorsTestCase(TestCase):
             self.assertEqual(
                 mqtt_client_mock.get_state_messages(),
                 [
-                    {'payload': 0.1201171875, 'topic': 'homeassistant/sensor/bar/bar-eth0sent/state'},
-                    {'payload': 0.0, 'topic': 'homeassistant/sensor/bar/bar-eth0sentrate/state'},
-                    {'payload': 0.4453125, 'topic': 'homeassistant/sensor/bar/bar-eth0received/state'},
-                    {'payload': 0.0, 'topic': 'homeassistant/sensor/bar/bar-eth0receivedrate/state'},
+                    {
+                        'topic': 'homeassistant/sensor/bar/bar-eth0sent/state',
+                        'payload': 0.1201171875,
+                        'qos': 0,
+                        'retain': False,
+                    },
+                    {
+                        'topic': 'homeassistant/sensor/bar/bar-eth0sentrate/state',
+                        'payload': 0.0,
+                        'qos': 0,
+                        'retain': False,
+                    },
+                    {
+                        'topic': 'homeassistant/sensor/bar/bar-eth0received/state',
+                        'payload': 0.4453125,
+                        'qos': 0,
+                        'retain': False,
+                    },
+                    {
+                        'topic': 'homeassistant/sensor/bar/bar-eth0receivedrate/state',
+                        'payload': 0.0,
+                        'qos': 0,
+                        'retain': False,
+                    },
                 ],
             )
 
@@ -84,6 +104,11 @@ class NetStatSensorsTestCase(TestCase):
             # Check sample:
             self.assertEqual(
                 state_messages[0],
-                {'topic': 'homeassistant/sensor/bar/bar-eth0sent/state', 'payload': 0.1201171875},
+                {
+                    'topic': 'homeassistant/sensor/bar/bar-eth0sent/state',
+                    'payload': 0.1201171875,
+                    'qos': 0,
+                    'retain': False,
+                },
             )
             assert_snapshot(got=state_messages)

@@ -39,6 +39,8 @@ class BaseComponent(abc.ABC):
         uid: str,
         component: str,
         initial_state=NO_STATE,  # set_state() must be called to set the value
+        qos: int = 0,
+        retain: bool = False,
     ):
         self.device = device
 
@@ -58,6 +60,8 @@ class BaseComponent(abc.ABC):
         self._next_config_publish = 0
 
         self.state = initial_state
+        self.qos = qos
+        self.retain = retain
 
     def _get_config_kwargs(self) -> dict:
         if self._config_kwargs_cache is None:
@@ -69,6 +73,8 @@ class BaseComponent(abc.ABC):
                 {
                     'topic': config.topic,
                     'payload': payload,
+                    'qos': config.qos,
+                    'retain': config.retain,
                 }
             )
         return self._config_kwargs_cache
@@ -96,7 +102,12 @@ class BaseComponent(abc.ABC):
 
         state: ComponentState = self.get_state()
         logger.debug(f'Publishing {self.uid=} state: {state}')
-        info: MQTTMessageInfo = client.publish(topic=state.topic, payload=state.payload)
+        info: MQTTMessageInfo = client.publish(
+            topic=state.topic,
+            payload=state.payload,
+            qos=self.qos,
+            retain=self.retain,
+        )
         return info
 
     def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None]:
