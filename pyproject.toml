@@ -14,7 +14,7 @@ dependencies = [
     "msgspec",  # https://github.com/jcrist/msgspec
     "frozendict",  # https://github.com/Marco-Sulla/python-frozendict
     "psutil",  # https://github.com/giampaolo/psutil/
-    "cli-base-utilities",  # https://github.com/jedie/cli-base-utilities
+    "cli-base-utilities>=0.18.0",  # https://github.com/jedie/cli-base-utilities
     "tyro",  # https://github.com/brentyi/tyro
     "rich",  # https://github.com/Textualize/rich
 ]

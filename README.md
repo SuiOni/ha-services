@@ -67,8 +67,8 @@ st-snapshot-files,version}
 [comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
 ```
 usage: ./cli.py [-h]
-                {edit-settings,print-settings,publish-loop,systemd-debug,systemd-remove,systemd-setup,systemd-status,s
-ystemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
+                {edit-settings,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,sys
+temd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
 
 
 
@@ -76,8 +76,8 @@ ystemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {edit-settings,print-settings,publish-loop,systemd-debug,systemd-remove,systemd-setup,systemd-status,systemd-stop, │
-│ test-mqtt-connection,update-readme-history,version,wifi-info}                                                      │
+│ {edit-settings,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-status, │
+│ systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}                                         │
 │     edit-settings                                                                                                  │
 │                   Edit the settings file. On first call: Create the default one.                                   │
 │     print-settings                                                                                                 │
@@ -85,6 +85,7 @@ ystemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
 │     publish-loop  Publish data via MQTT for Home Assistant (endless loop)                                          │
 │     systemd-debug                                                                                                  │
 │                   Print Systemd service template + context + rendered file content.                                │
+│     systemd-logs  List and follow logs of systemd service. (May need sudo)                                         │
 │     systemd-remove                                                                                                 │
 │                   Write Systemd service file, enable it and (re-)start the service. (May need sudo)                │
 │     systemd-setup                                                                                                  │
@@ -124,6 +125,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
+  * 2025-06-17 - Add "systemd-logs"
 * [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
   * 2025-06-17 - Add and send "qos" and "retain"
   * 2025-06-16 - Update requirements
@@ -131,12 +134,12 @@ New usage, see: `ha_services/example.py`
   * 2025-04-08 - Optional validation of sensor states
 * [v2.9.0](https://github.com/jedie/ha-services/compare/v2.8.0...v2.9.0)
   * 2025-04-08 - Add Wifi info into MainMqttDevice
-* [v2.8.0](https://github.com/jedie/ha-services/compare/v2.7.0...v2.8.0)
-  * 2025-04-08 - Fix get_system_start_datetime()
-  * 2025-04-08 - pip-tools -> uv
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v2.8.0](https://github.com/jedie/ha-services/compare/v2.7.0...v2.8.0)
+  * 2025-04-08 - Fix get_system_start_datetime()
+  * 2025-04-08 - pip-tools -> uv
 * [v2.7.0](https://github.com/jedie/ha-services/compare/v2.6.0...v2.7.0)
   * 2024-09-20 - Apply manageprojects updates and replace safety with pip-audit
   * 2024-09-20 - Update requirements
