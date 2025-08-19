@@ -34,7 +34,8 @@ class BaseMqttDevice:
         manufacturer: str | None = None,
         model: str | None = None,
         sw_version: str | None = None,
-        config_throttle_sec: int = 20,
+        throttle_sec: int = 1,  # min. time between state publishing
+        config_throttle_sec: int = 20,  # Min. time between config publishing
     ):
         self.name = name
 
@@ -46,6 +47,8 @@ class BaseMqttDevice:
         self.manufacturer = manufacturer
         self.model = model
         self.sw_version = sw_version
+
+        self.throttle_sec = throttle_sec
         self.config_throttle_sec = config_throttle_sec
 
         self._mqtt_payload_cache = None

@@ -81,7 +81,16 @@ class IntergrationTestCase(TestCase):
             )
 
             mqtt_client_mock = MqttClientMock()
+
+            # throttle values not set, yet:
+            self.assertEqual(main_device.hostname._next_config_publish, 0)
+            self.assertEqual(main_device.hostname._next_publish, 0)
+
             main_device.poll_and_publish(mqtt_client_mock)
+
+            # Now the throttle values should be set:
+            self.assertGreater(main_device.hostname._next_config_publish, 0)
+            self.assertGreater(main_device.hostname._next_publish, 0)
 
         first_message = mqtt_client_mock.messages[0]
         self.assertEqual(first_message['topic'], 'homeassistant/sensor/main_uid/main_uid-hostname/config')

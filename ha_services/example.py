@@ -50,6 +50,9 @@ class MqttExampleValues:
     mqtt_payload_prefix: str = 'example'
     device_name: str = 'ha-services-demo'
 
+    publish_config_throttle_seconds: int = 10  # Min. time between config publishing
+    publish_throttle_seconds: int = 1  # Min. time between state publishing
+
 
 @dataclasses.dataclass
 class DemoSettings:
@@ -80,6 +83,7 @@ def publish_forever(*, user_settings: DemoSettings, verbosity: int):
         manufacturer='ha_services',
         model='Just the example.py ;)',
         sw_version=ha_services.__version__,
+        throttle_sec=user_settings.mqtt.publish_throttle_seconds,
         config_throttle_sec=user_settings.mqtt.publish_config_throttle_seconds,
     )
 
@@ -90,6 +94,8 @@ def publish_forever(*, user_settings: DemoSettings, verbosity: int):
         manufacturer='ha_services',
         model='Just the example.py ;)',
         sw_version=ha_services.__version__,
+        throttle_sec=user_settings.app.publish_throttle_seconds,
+        config_throttle_sec=user_settings.app.publish_config_throttle_seconds,
     )
 
     activate_relay = BinarySensor(

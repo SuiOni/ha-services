@@ -51,7 +51,8 @@ class MqttSettings:
     The `main_uid` is used as a second prefix for all MQTT messages, to avoid conflicts.
 
     With `publish_config_throttle_seconds` you can set the throttle interval
-    for publishing config messages to Home Assistant.
+    for publishing config messages to Home Assistant and `publish_throttle_seconds`
+    is for state messages.
     """
 
     host: str = 'mqtt.eclipseprojects.io'  # public test MQTT broker service
@@ -60,7 +61,9 @@ class MqttSettings:
     password: str = ''
 
     main_uid: str = dataclasses.field(default_factory=socket.gethostname)
-    publish_config_throttle_seconds: int = 20
+
+    publish_config_throttle_seconds: int = 20  # Min. time between config publishing
+    publish_throttle_seconds: int = 5  # Min. time between state publishing
 
     def __post_init__(self):
         assert self.main_uid, 'main_uid must be provided'
@@ -69,6 +72,13 @@ class MqttSettings:
         if main_uid != self.main_uid:
             self.main_uid = main_uid
             logger.warning('main_uid has been slugified to: %r', self.main_uid)
+
+        if self.publish_throttle_seconds > self.publish_config_throttle_seconds:
+            logger.warning(
+                'publish_throttle_seconds (%i) should be less than publish_config_throttle_seconds (%i)',
+                self.publish_throttle_seconds,
+                self.publish_config_throttle_seconds,
+            )
 
     def anonymized(self):
         data = dataclasses.asdict(self)
