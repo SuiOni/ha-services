@@ -125,6 +125,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [**dev**](https://github.com/jedie/ha-services/compare/v2.12.0...main)
+  * 2025-08-19 - Update requirements
 * [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
   * 2025-06-17 - Add "systemd-logs"
 * [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
@@ -132,11 +134,11 @@ New usage, see: `ha_services/example.py`
   * 2025-06-16 - Update requirements
 * [v2.10.0](https://github.com/jedie/ha-services/compare/v2.9.0...v2.10.0)
   * 2025-04-08 - Optional validation of sensor states
-* [v2.9.0](https://github.com/jedie/ha-services/compare/v2.8.0...v2.9.0)
-  * 2025-04-08 - Add Wifi info into MainMqttDevice
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v2.9.0](https://github.com/jedie/ha-services/compare/v2.8.0...v2.9.0)
+  * 2025-04-08 - Add Wifi info into MainMqttDevice
 * [v2.8.0](https://github.com/jedie/ha-services/compare/v2.7.0...v2.8.0)
   * 2025-04-08 - Fix get_system_start_datetime()
   * 2025-04-08 - pip-tools -> uv
