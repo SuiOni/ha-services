@@ -126,6 +126,7 @@ New usage, see: `ha_services/example.py`
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [**dev**](https://github.com/jedie/ha-services/compare/v2.12.0...main)
+  * 2025-08-20 - Bugfix: Make registry of all components "global"
   * 2025-08-19 - Individual "throttle_sec" and "config_throttle_sec"
   * 2025-08-19 - Update requirements
 * [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)

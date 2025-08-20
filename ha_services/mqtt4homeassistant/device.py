@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class BaseMqttDevice:
     device_uids = set()
+    components = {}  # Global registry of all components
 
     def __init__(
         self,
@@ -52,7 +53,6 @@ class BaseMqttDevice:
         self.config_throttle_sec = config_throttle_sec
 
         self._mqtt_payload_cache = None
-        self.components = {}
 
     def register_component(self, *, component):
         logger.debug(f'Registering component: {component}')
