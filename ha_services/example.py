@@ -72,7 +72,7 @@ class DemoSettings:
     app: dataclasses = dataclasses.field(default_factory=MqttExampleValues)
 
 
-def publish_forever(*, user_settings: DemoSettings, verbosity: int):
+def publishing(*, user_settings: DemoSettings, verbosity: int, endless_loop: bool = True):
     """
     Publish "something" to MQTT server. It's just a DEMO ;)
     """
@@ -193,9 +193,15 @@ def publish_forever(*, user_settings: DemoSettings, verbosity: int):
             system_time_used_sensor.publish(mqttc)
         except InvalidStateValue as err:
             logger.warning('Skip invalid state: %s', err)
+        else:
+            if not endless_loop:
+                logger.info('Exiting...')
+                break
 
         print('\n', flush=True)
         print('Wait', end='...')
         for i in range(10, 1, -1):
             time.sleep(0.5)
             print(i, end='...', flush=True)
+
+    return main_device

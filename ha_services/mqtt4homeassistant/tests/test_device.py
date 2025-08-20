@@ -5,9 +5,10 @@ from frozendict import frozendict
 
 from ha_services.mqtt4homeassistant.components.switch import Switch
 from ha_services.mqtt4homeassistant.device import MainMqttDevice, MqttDevice
+from ha_services.tests.base import ComponentTestMixin
 
 
-class DeviceTestCase(TestCase):
+class DeviceTestCase(ComponentTestMixin, TestCase):
     def test_device(self):
         with self.assertNoLogs(level=logging.WARNING):
             device = MqttDevice(name='My Device', uid='device1')

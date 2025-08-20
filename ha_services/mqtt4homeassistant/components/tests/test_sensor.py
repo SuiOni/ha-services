@@ -5,9 +5,10 @@ from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components.sensor import Sensor
 from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
 from ha_services.mqtt4homeassistant.device import MqttDevice
+from ha_services.tests.base import ComponentTestMixin
 
 
-class SensorTestCase(TestCase):
+class SensorTestCase(ComponentTestMixin, TestCase):
     def test_mimimal_sensor(self):
         with self.assertNoLogs(level=logging.WARNING):
             sensor = Sensor(
