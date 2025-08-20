@@ -67,8 +67,8 @@ st-snapshot-files,version}
 [comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
 ```
 usage: ./cli.py [-h]
-                {edit-settings,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,sys
-temd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
+                {edit-settings,info,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setu
+p,systemd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
 
 
 
@@ -76,10 +76,11 @@ temd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {edit-settings,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-status, │
-│ systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}                                         │
+│ {edit-settings,info,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-st │
+│ atus,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}                                    │
 │     edit-settings                                                                                                  │
 │                   Edit the settings file. On first call: Create the default one.                                   │
+│     info          Publish data once and display information about all registered components.                       │
 │     print-settings                                                                                                 │
 │                   Display (anonymized) MQTT server username and password                                           │
 │     publish-loop  Publish data via MQTT for Home Assistant (endless loop)                                          │
@@ -125,7 +126,10 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
-* [**dev**](https://github.com/jedie/ha-services/compare/v2.12.0...main)
+* [v2.13.0](https://github.com/jedie/ha-services/compare/v2.12.0...v2.13.0)
+  * 2025-08-20 - NEW: Add "info" command to display information about all components
+  * 2025-08-20 - Bugfix: Make registry of all components "global"
+  * 2025-08-19 - Individual "throttle_sec" and "config_throttle_sec"
   * 2025-08-19 - Update requirements
 * [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
   * 2025-06-17 - Add "systemd-logs"

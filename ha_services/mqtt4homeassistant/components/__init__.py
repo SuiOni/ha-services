@@ -41,6 +41,8 @@ class BaseComponent(abc.ABC):
         initial_state=NO_STATE,  # set_state() must be called to set the value
         qos: int = 0,
         retain: bool = False,
+        throttle_sec: int | None = None,  # min. time between state publishing
+        config_throttle_sec: int | None = None,  # Min. time between config publishing
     ):
         self.device = device
 
@@ -56,12 +58,23 @@ class BaseComponent(abc.ABC):
         # e.g.: 'homeassistant/sensor/My-device/Chip-Temperature'
         self.topic_prefix = f'{self.device.topic_prefix}/{self.component}/{self.device.uid}/{self.uid}'
 
-        self._config_kwargs_cache = None
-        self._next_config_publish = 0
-
         self.state = initial_state
         self.qos = qos
         self.retain = retain
+
+        # Use the given throttle sec values or use them from the device:
+        self.throttle_sec = throttle_sec or device.throttle_sec
+        self.config_throttle_sec = config_throttle_sec or device.config_throttle_sec
+        logger.info(
+            f'Initialized {self.topic_prefix} with {self.qos=} {self.retain=}'
+            f' {self.throttle_sec=} {self.config_throttle_sec=}'
+        )
+
+        self._config_kwargs_cache = None
+
+        # Always publish first config+state:
+        self._next_config_publish = 0
+        self._next_publish = 0
 
     def _get_config_kwargs(self) -> dict:
         if self._config_kwargs_cache is None:
@@ -88,16 +101,18 @@ class BaseComponent(abc.ABC):
         logger.info(f'Publishing {self.uid=} config: {config_kwargs}')
         info: MQTTMessageInfo = client.publish(**config_kwargs)
 
-        self._next_config_publish = time.monotonic() + self.device.config_throttle_sec
-        logger.debug(
-            f'Next {self.uid=} config publish: {self._next_config_publish} {self.device.config_throttle_sec=}'
-        )
+        self._next_config_publish = time.monotonic() + self.config_throttle_sec
+        logger.debug(f'Next {self.uid=} config publish: {self._next_config_publish} {self.config_throttle_sec=}')
 
         return info
 
     def publish_state(self, client: Client) -> MQTTMessageInfo | None:
         if self.state is NO_STATE:
             logging.warning(f'Sensor {self.uid=} state is not set!')
+            return None
+
+        if self._next_publish > time.monotonic():
+            logger.debug(f'Publishing {self.uid=}: throttled')
             return None
 
         state: ComponentState = self.get_state()
@@ -108,6 +123,11 @@ class BaseComponent(abc.ABC):
             qos=self.qos,
             retain=self.retain,
         )
+
+        self._next_publish = time.monotonic() + self.throttle_sec
+
+        logger.debug(f'Next {self.uid=} config publish: {self._next_publish} {self.throttle_sec=}')
+
         return info
 
     def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None]:
