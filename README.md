@@ -31,8 +31,8 @@ Use by:
 [comment]: <> (✂✂✂ auto generated dev help start ✂✂✂)
 ```
 usage: ./dev-cli.py [-h]
-                    {check-code-style,coverage,fix-code-style,install,mypy,nox,pip-audit,publish,test,update,update-te
-st-snapshot-files,version}
+                    {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-readme-histo
+ry,update-test-snapshot-files,version}
 
 
 
@@ -40,20 +40,25 @@ st-snapshot-files,version}
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {check-code-style,coverage,fix-code-style,install,mypy,nox,pip-audit,publish,test,update,update-test-snapshot-file │
-│ s,version}                                                                                                         │
-│     check-code-style                                                                                               │
-│                   Check code style by calling darker + flake8                                                      │
+│ {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-readme-history,update-test-s │
+│ napshot-files,version}                                                                                             │
 │     coverage      Run tests and show coverage report.                                                              │
-│     fix-code-style                                                                                                 │
-│                   Fix code style of all ha_services source code files via darker                                   │
 │     install       Install requirements and 'ha_services' via pip as editable.                                      │
+│     lint          Check/fix code style by run: "ruff check --fix"                                                  │
 │     mypy          Run Mypy (configured in pyproject.toml)                                                          │
 │     nox           Run nox                                                                                          │
 │     pip-audit     Run pip-audit check against current requirements files                                           │
 │     publish       Build and upload this project to PyPi                                                            │
+│     shell-completion                                                                                               │
+│                   Setup shell completion for this CLI (Currently only for bash shell)                              │
 │     test          Run unittests                                                                                    │
-│     update        Update "requirements*.txt" dependencies files                                                    │
+│     update        Update dependencies (uv.lock) and git pre-commit hooks                                           │
+│     update-readme-history                                                                                          │
+│                   Update project history base on git commits/tags in README.md Will be exited with 1 if the        │
+│                   README.md was updated otherwise with 0.                                                          │
+│                                                                                                                    │
+│                   Also, callable via e.g.:                                                                         │
+│                       python -m cli_base update-readme-history -v                                                  │
 │     update-test-snapshot-files                                                                                     │
 │                   Update all test snapshot files (by remove and recreate all snapshot files)                       │
 │     version       Print version and exit                                                                           │
@@ -67,8 +72,8 @@ st-snapshot-files,version}
 [comment]: <> (✂✂✂ auto generated main help start ✂✂✂)
 ```
 usage: ./cli.py [-h]
-                {edit-settings,info,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setu
-p,systemd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
+                {edit-settings,info,print-settings,publish-loop,shell-completion,systemd-debug,systemd-logs,systemd-re
+move,systemd-setup,systemd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}
 
 
 
@@ -76,14 +81,16 @@ p,systemd-status,systemd-stop,test-mqtt-connection,update-readme-history,version
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {edit-settings,info,print-settings,publish-loop,systemd-debug,systemd-logs,systemd-remove,systemd-setup,systemd-st │
-│ atus,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}                                    │
+│ {edit-settings,info,print-settings,publish-loop,shell-completion,systemd-debug,systemd-logs,systemd-remove,systemd │
+│ -setup,systemd-status,systemd-stop,test-mqtt-connection,update-readme-history,version,wifi-info}                   │
 │     edit-settings                                                                                                  │
 │                   Edit the settings file. On first call: Create the default one.                                   │
 │     info          Publish data once and display information about all registered components.                       │
 │     print-settings                                                                                                 │
 │                   Display (anonymized) MQTT server username and password                                           │
 │     publish-loop  Publish data via MQTT for Home Assistant (endless loop)                                          │
+│     shell-completion                                                                                               │
+│                   Setup shell completion for this CLI (Currently only for bash shell)                              │
 │     systemd-debug                                                                                                  │
 │                   Print Systemd service template + context + rendered file content.                                │
 │     systemd-logs  List and follow logs of systemd service. (May need sudo)                                         │
@@ -126,6 +133,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [**dev**](https://github.com/jedie/ha-services/compare/v2.13.0...main)
+  * 2025-09-24 - Apply manageprojects updates
 * [v2.13.0](https://github.com/jedie/ha-services/compare/v2.12.0...v2.13.0)
   * 2025-08-20 - NEW: Add "info" command to display information about all components
   * 2025-08-20 - Bugfix: Make registry of all components "global"
@@ -136,11 +145,11 @@ New usage, see: `ha_services/example.py`
 * [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
   * 2025-06-17 - Add and send "qos" and "retain"
   * 2025-06-16 - Update requirements
-* [v2.10.0](https://github.com/jedie/ha-services/compare/v2.9.0...v2.10.0)
-  * 2025-04-08 - Optional validation of sensor states
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v2.10.0](https://github.com/jedie/ha-services/compare/v2.9.0...v2.10.0)
+  * 2025-04-08 - Optional validation of sensor states
 * [v2.9.0](https://github.com/jedie/ha-services/compare/v2.8.0...v2.9.0)
   * 2025-04-08 - Add Wifi info into MainMqttDevice
 * [v2.8.0](https://github.com/jedie/ha-services/compare/v2.7.0...v2.8.0)
