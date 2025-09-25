@@ -1,6 +1,7 @@
 import typing
 
 from ha_services.exceptions import InvalidStateValue
+from ha_services.ha_data.validators import validate_sensor
 from ha_services.mqtt4homeassistant.components import BaseComponent
 from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
 
@@ -35,7 +36,16 @@ class Sensor(BaseComponent):
         # Optional min/max validation of int/float values:
         min_value: int | float | None = None,
         max_value: int | float | None = None,
+        #
+        validate: bool = True,  # Validate device_class, state_class and unit_of_measurement
     ):
+        if validate:
+            validate_sensor(
+                device_class=device_class,
+                state_class=state_class,
+                unit_of_measurement=unit_of_measurement,
+            )
+
         super().__init__(
             device=device,
             name=name,
