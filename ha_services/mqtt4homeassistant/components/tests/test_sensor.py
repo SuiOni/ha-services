@@ -2,6 +2,7 @@ import logging
 from unittest import TestCase
 
 from ha_services.exceptions import InvalidStateValue
+from ha_services.ha_data.validators import ValidationError
 from ha_services.mqtt4homeassistant.components.sensor import Sensor
 from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
 from ha_services.mqtt4homeassistant.device import MqttDevice
@@ -157,3 +158,44 @@ class SensorTestCase(ComponentTestMixin, TestCase):
                     payload=456,  # now we have a state
                 ),
             )
+
+    def test_validation(self):
+        def make_sensor(*, device_class, state_class, unit_of_measurement, validate=True):
+            Sensor(
+                device_class=device_class,
+                state_class=state_class,
+                unit_of_measurement=unit_of_measurement,
+                validate=validate,
+                # Needed but not relevant for this test:
+                device=MqttDevice(name='My device', uid='device_id'),
+                name='My component',
+                uid='component_id',
+            )
+
+        with self.assertRaises(ValidationError):
+            make_sensor(
+                device_class='invalid',
+                state_class='measurement',
+                unit_of_measurement='%',
+            )
+
+        with self.assertRaises(ValidationError):
+            make_sensor(
+                device_class='battery',
+                state_class='measurement',
+                unit_of_measurement='invalid',
+            )
+
+        with self.assertRaises(ValidationError):
+            make_sensor(
+                device_class='data_size',
+                state_class='invalid',
+                unit_of_measurement='%',
+            )
+
+        make_sensor(
+            device_class='invalid',
+            state_class='invalid',
+            unit_of_measurement='invalid',
+            validate=False,
+        )

@@ -17,6 +17,23 @@ Use by:
 * https://github.com/jedie/energymeter2mqtt
 * https://github.com/jedie/pysmartmeter
 
+
+# Validation of device/state classes and units
+
+Home Assistant supports only a defined combination of device-, state-classes and units.
+
+see: https://www.home-assistant.io/integrations/sensor/#device-class
+
+hs-services contains a validation of these combinations.
+We collect the valid combinations from Home Assistant source code.
+
+Update of these data is done by: `./dev-cli.py update-ha-data`
+
+A Sensor inheriting from `ha_services.mqtt4homeassistant.components.sensor.Sensor` will be validated.
+
+Validation can be disabled by setting `validate=False` in the constructor of the Sensor.
+
+
 # start development
 
 ```bash
@@ -31,8 +48,8 @@ Use by:
 [comment]: <> (✂✂✂ auto generated dev help start ✂✂✂)
 ```
 usage: ./dev-cli.py [-h]
-                    {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-readme-histo
-ry,update-test-snapshot-files,version}
+                    {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-ha-data,upda
+te-readme-history,update-test-snapshot-files,version}
 
 
 
@@ -40,8 +57,8 @@ ry,update-test-snapshot-files,version}
 │ -h, --help        show this help message and exit                                                                  │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ subcommands ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-readme-history,update-test-s │
-│ napshot-files,version}                                                                                             │
+│ {coverage,install,lint,mypy,nox,pip-audit,publish,shell-completion,test,update,update-ha-data,update-readme-histor │
+│ y,update-test-snapshot-files,version}                                                                              │
 │     coverage      Run tests and show coverage report.                                                              │
 │     install       Install requirements and 'ha_services' via pip as editable.                                      │
 │     lint          Check/fix code style by run: "ruff check --fix"                                                  │
@@ -53,6 +70,9 @@ ry,update-test-snapshot-files,version}
 │                   Setup shell completion for this CLI (Currently only for bash shell)                              │
 │     test          Run unittests                                                                                    │
 │     update        Update dependencies (uv.lock) and git pre-commit hooks                                           │
+│     update-ha-data                                                                                                 │
+│                   Update Home Assistant data files for custom components. Creates a venv in /tmp/, installs        │
+│                   `homeassistant` package and runs a script to collect data.                                       │
 │     update-readme-history                                                                                          │
 │                   Update project history base on git commits/tags in README.md Will be exited with 1 if the        │
 │                   README.md was updated otherwise with 0.                                                          │
@@ -133,7 +153,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
-* [**dev**](https://github.com/jedie/ha-services/compare/v2.13.0...main)
+* [v2.14.0](https://github.com/jedie/ha-services/compare/v2.13.0...v2.14.0)
+  * 2025-09-25 - NEW: Validation of device/state classes and units
   * 2025-09-24 - Apply manageprojects updates
 * [v2.13.0](https://github.com/jedie/ha-services/compare/v2.12.0...v2.13.0)
   * 2025-08-20 - NEW: Add "info" command to display information about all components

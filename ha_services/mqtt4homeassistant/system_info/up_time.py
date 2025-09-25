@@ -11,8 +11,6 @@ class UpTimeSensor(Sensor):
     """
 
     def __init__(self, **kwargs):
-        # https://www.home-assistant.io/integrations/sensor/#device-class
-        kwargs.setdefault('device_class', 'timestamp')
         kwargs.setdefault('name', 'System Up Time')
         kwargs.setdefault('uid', 'up_time')
         super().__init__(**kwargs)
@@ -29,7 +27,6 @@ class StartTimeSensor(Sensor):
 
     def __init__(self, **kwargs):
         # https://www.home-assistant.io/integrations/sensor/#device-class
-        kwargs.setdefault('device_class', 'timestamp')
         kwargs.setdefault('name', 'Process Start')
         kwargs.setdefault('uid', 'process_start')
         super().__init__(**kwargs)
