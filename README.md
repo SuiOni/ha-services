@@ -154,6 +154,7 @@ New usage, see: `ha_services/example.py`
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [v2.15.0](https://github.com/jedie/ha-services/compare/v2.14.0...v2.15.0)
+  * 2025-10-08 - Update requirements and ignore GHSA-4xh5-x5gv-qwph
   * 2025-10-08 - Catch error if "iwconfig" not found and other problems with internal sensor data
 * [v2.14.0](https://github.com/jedie/ha-services/compare/v2.13.0...v2.14.0)
   * 2025-09-25 - NEW: Validation of device/state classes and units
