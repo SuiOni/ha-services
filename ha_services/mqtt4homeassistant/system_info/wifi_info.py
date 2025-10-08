@@ -124,7 +124,11 @@ class WifiInfo2Mqtt:
         self.sensors = {}
 
     def poll_and_publish(self, client: Client) -> None:
-        wifi_infos = get_wifi_infos()
+        try:
+            wifi_infos = get_wifi_infos()
+        except OSError as err:
+            logger.exception('Error getting WiFi info: %s', err)
+            return
 
         device_count = len(wifi_infos)
         if device_count == 0:
