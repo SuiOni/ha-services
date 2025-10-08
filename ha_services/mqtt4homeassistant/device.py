@@ -17,6 +17,7 @@ from ha_services.mqtt4homeassistant.system_info.temperatures import Temperatures
 from ha_services.mqtt4homeassistant.system_info.up_time import StartTimeSensor, UpTimeSensor
 from ha_services.mqtt4homeassistant.system_info.wifi_info import WifiInfo2Mqtt
 from ha_services.mqtt4homeassistant.utilities.assertments import assert_uid
+from ha_services.mqtt4homeassistant.utilities.error_handling import LogErrors
 
 
 logger = logging.getLogger(__name__)
@@ -115,19 +116,36 @@ class MainMqttDevice(MqttDevice):
     def poll_and_publish(self, client: Client) -> None:
         logger.debug(f'Polling {self.name} ({self.uid})')
 
-        self.hostname.set_state(socket.gethostname())
-        self.hostname.publish(client)
+        with LogErrors(logger):
+            self.hostname.set_state(socket.gethostname())
+            self.hostname.publish(client)
 
-        self.up_time_sensor.publish(client)
-        self.process_start_sensor.publish(client)
-        self.cpu_freq_sensor.publish(client)
-        self.swap_usage.publish(client)
+        with LogErrors(logger):
+            self.up_time_sensor.publish(client)
 
-        self.system_load_1min.publish(client)
-        self.total_cpu_usage.publish(client)
-        self.process_cpu_usage.publish(client)
+        with LogErrors(logger):
+            self.process_start_sensor.publish(client)
 
-        self.temperatures_sensors.publish(client)
-        self.netstat_sensors.publish(client)
+        with LogErrors(logger):
+            self.cpu_freq_sensor.publish(client)
 
-        self.wifi_info_sensors.poll_and_publish(client)
+        with LogErrors(logger):
+            self.swap_usage.publish(client)
+
+        with LogErrors(logger):
+            self.system_load_1min.publish(client)
+
+        with LogErrors(logger):
+            self.total_cpu_usage.publish(client)
+
+        with LogErrors(logger):
+            self.process_cpu_usage.publish(client)
+
+        with LogErrors(logger):
+            self.temperatures_sensors.publish(client)
+
+        with LogErrors(logger):
+            self.netstat_sensors.publish(client)
+
+        with LogErrors(logger):
+            self.wifi_info_sensors.poll_and_publish(client)

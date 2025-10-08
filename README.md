@@ -153,6 +153,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [v2.15.0](https://github.com/jedie/ha-services/compare/v2.14.0...v2.15.0)
+  * 2025-10-08 - Catch error if "iwconfig" not found and other problems with internal sensor data
 * [v2.14.0](https://github.com/jedie/ha-services/compare/v2.13.0...v2.14.0)
   * 2025-09-25 - NEW: Validation of device/state classes and units
   * 2025-09-24 - Apply manageprojects updates
@@ -163,12 +165,12 @@ New usage, see: `ha_services/example.py`
   * 2025-08-19 - Update requirements
 * [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
   * 2025-06-17 - Add "systemd-logs"
-* [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
-  * 2025-06-17 - Add and send "qos" and "retain"
-  * 2025-06-16 - Update requirements
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
+  * 2025-06-17 - Add and send "qos" and "retain"
+  * 2025-06-16 - Update requirements
 * [v2.10.0](https://github.com/jedie/ha-services/compare/v2.9.0...v2.10.0)
   * 2025-04-08 - Optional validation of sensor states
 * [v2.9.0](https://github.com/jedie/ha-services/compare/v2.8.0...v2.9.0)
