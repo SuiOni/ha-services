@@ -14,11 +14,51 @@ from ha_services.mqtt4homeassistant.system_info.wifi_info import (
     WifiInfoValue,
     _convert_iwconfig_values,
     _get_iwconfig_values,
+    get_iwconfig_bin,
     get_wifi_infos,
 )
+from ha_services.tests.base import ComponentTestMixin
 
 
-class WifiInfoTestCase(TestCase):
+class WifiInfoTestCase(ComponentTestMixin, TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        get_iwconfig_bin.cache_clear()
+
+    def tearDown(self):
+        get_iwconfig_bin.cache_clear()
+        super().tearDown()
+
+    def test_no_iwconfig(self):
+        with patch.object(wifi_info, 'which', return_value=None):
+            self.assertIs(get_iwconfig_bin(), None)
+
+        # It's cached:
+        self.assertIs(get_iwconfig_bin(), None)
+
+        with self.assertLogs('ha_services', level=logging.ERROR) as log_cm:
+            wifi_info2mqtt = WifiInfo2Mqtt(device=MqttDevice(name='Main Device', uid='main_uid'))
+        self.assertIs(wifi_info2mqtt.enabled, False)
+        self.assertEqual(
+            log_cm.output,
+            [
+                'ERROR:ha_services.mqtt4homeassistant.system_info.wifi_info:'
+                'iwconfig binary not found in PATH, WifiInfo2Mqtt disabled'
+            ],
+        )
+
+        with self.assertLogs('ha_services', level=logging.DEBUG) as log_cm:
+            wifi_info2mqtt.poll_and_publish(client=MqttClientMock())
+        self.assertEqual(
+            log_cm.output,
+            [
+                'DEBUG:ha_services.mqtt4homeassistant.system_info.wifi_info:'
+                'WifiInfo2Mqtt is disabled, skipping poll_and_publish()'
+            ],
+        )
+
     def test_happy_path(self):
         with HostSystemMock(), self.assertNoLogs(level=logging.WARNING):
             iwconfig_values = _get_iwconfig_values()
