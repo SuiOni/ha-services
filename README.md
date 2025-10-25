@@ -154,6 +154,8 @@ New usage, see: `ha_services/example.py`
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
 * [v2.15.1](https://github.com/jedie/ha-services/compare/v2.15.0...v2.15.1)
+  * 2025-10-25 - Update requirements and fix CI tests
+  * 2025-10-25 - Apply manageprojects updates
   * 2025-10-25 - Enhance logging in WifiInfo2Mqtt if "iwconfig" not found
 * [v2.15.0](https://github.com/jedie/ha-services/compare/v2.14.0...v2.15.0)
   * 2025-10-08 - Update requirements and ignore GHSA-4xh5-x5gv-qwph

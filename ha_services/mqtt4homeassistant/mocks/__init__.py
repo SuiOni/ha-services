@@ -6,6 +6,7 @@ from bx_py_utils.test_utils.context_managers import MassContextManager
 from ha_services.mqtt4homeassistant.components import get_origin_data
 from ha_services.mqtt4homeassistant.mocks.psutil_mock import PsutilMock
 from ha_services.mqtt4homeassistant.system_info import wifi_info
+from ha_services.mqtt4homeassistant.system_info.wifi_info import get_iwconfig_bin
 
 
 IWCONFIG_MOCK_OUTPUT = """
@@ -32,6 +33,11 @@ class HostSystemMock(MassContextManager):
         origin_data = get_origin_data()
         origin_data['name'] = 'ha-services-tests'
         origin_data['sw_version'] = '1.2.3'
+
+        get_iwconfig_bin.cache_clear()  # clear functools.cache
+        with patch.object(wifi_info, 'which', return_value='/mocked/path/to/iwconfig'):
+            iwconfig_path = get_iwconfig_bin()
+        assert iwconfig_path == '/mocked/path/to/iwconfig'
 
         self.mocks = (
             patch('ha_services.mqtt4homeassistant.components.get_origin_data', return_value=origin_data),

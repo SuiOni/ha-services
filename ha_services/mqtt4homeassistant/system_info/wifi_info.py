@@ -33,14 +33,11 @@ def get_iwconfig_bin() -> str | None:
     return which('iwconfig')
 
 
-class IwConfigNotFoundError(FileNotFoundError):
-    pass
-
-
-def _get_iwconfig_values() -> dict:
+def _get_iwconfig_values() -> dict | None:
     iwconfig_bin = get_iwconfig_bin()
     if not iwconfig_bin:
-        raise IwConfigNotFoundError('iwconfig binary not found')
+        logger.debug('iwconfig binary not found in PATH')
+        return None
     output = verbose_check_output(iwconfig_bin, verbose=False)
 
     logger.debug('RAW iwconfig output: %s', output)
