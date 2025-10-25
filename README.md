@@ -153,6 +153,8 @@ New usage, see: `ha_services/example.py`
 
 [comment]: <> (✂✂✂ auto generated history start ✂✂✂)
 
+* [v2.15.1](https://github.com/jedie/ha-services/compare/v2.15.0...v2.15.1)
+  * 2025-10-25 - Enhance logging in WifiInfo2Mqtt if "iwconfig" not found
 * [v2.15.0](https://github.com/jedie/ha-services/compare/v2.14.0...v2.15.0)
   * 2025-10-08 - Update requirements and ignore GHSA-4xh5-x5gv-qwph
   * 2025-10-08 - Catch error if "iwconfig" not found and other problems with internal sensor data
@@ -164,11 +166,11 @@ New usage, see: `ha_services/example.py`
   * 2025-08-20 - Bugfix: Make registry of all components "global"
   * 2025-08-19 - Individual "throttle_sec" and "config_throttle_sec"
   * 2025-08-19 - Update requirements
-* [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
-  * 2025-06-17 - Add "systemd-logs"
 
 <details><summary>Expand older history entries ...</summary>
 
+* [v2.12.0](https://github.com/jedie/ha-services/compare/v2.11.0...v2.12.0)
+  * 2025-06-17 - Add "systemd-logs"
 * [v2.11.0](https://github.com/jedie/ha-services/compare/v2.10.0...v2.11.0)
   * 2025-06-17 - Add and send "qos" and "retain"
   * 2025-06-16 - Update requirements

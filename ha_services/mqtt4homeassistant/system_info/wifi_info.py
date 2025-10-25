@@ -1,7 +1,9 @@
 import dataclasses
+import functools
 import logging
 import re
 import typing
+from shutil import which
 
 from cli_base.cli_tools.subprocess_utils import verbose_check_output
 from paho.mqtt.client import Client
@@ -25,8 +27,21 @@ RE_PATTERNS = (
 )
 
 
+@functools.cache
+def get_iwconfig_bin() -> str | None:
+    """Return the path to the iwconfig binary."""
+    return which('iwconfig')
+
+
+class IwConfigNotFoundError(FileNotFoundError):
+    pass
+
+
 def _get_iwconfig_values() -> dict:
-    output = verbose_check_output('iwconfig', verbose=False)
+    iwconfig_bin = get_iwconfig_bin()
+    if not iwconfig_bin:
+        raise IwConfigNotFoundError('iwconfig binary not found')
+    output = verbose_check_output(iwconfig_bin, verbose=False)
 
     logger.debug('RAW iwconfig output: %s', output)
 
@@ -114,6 +129,12 @@ class WifiInfo2Mqtt:
     def __init__(self, *, device: 'MqttDevice'):
         logger.info('Creating WifiInfo sensor')
 
+        if not get_iwconfig_bin():
+            logger.error('iwconfig binary not found in PATH, WifiInfo2Mqtt disabled')
+            self.enabled = False
+        else:
+            self.enabled = True
+
         self.device = device
 
         self.wifi_device_name = Sensor(
@@ -124,6 +145,10 @@ class WifiInfo2Mqtt:
         self.sensors = {}
 
     def poll_and_publish(self, client: Client) -> None:
+        if not self.enabled:
+            logger.debug('WifiInfo2Mqtt is disabled, skipping poll_and_publish()')
+            return
+
         try:
             wifi_infos = get_wifi_infos()
         except OSError as err:
