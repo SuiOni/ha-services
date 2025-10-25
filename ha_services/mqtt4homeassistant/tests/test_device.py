@@ -5,6 +5,7 @@ from frozendict import frozendict
 
 from ha_services.mqtt4homeassistant.components.switch import Switch
 from ha_services.mqtt4homeassistant.device import MainMqttDevice, MqttDevice
+from ha_services.mqtt4homeassistant.mocks import HostSystemMock
 from ha_services.tests.base import ComponentTestMixin
 
 
@@ -35,7 +36,7 @@ class DeviceTestCase(ComponentTestMixin, TestCase):
             )
 
     def test_device_with_main_device(self):
-        with self.assertNoLogs(level=logging.WARNING):
+        with HostSystemMock(), self.assertNoLogs(level=logging.WARNING):
             main_device = MainMqttDevice(name='Main Device', uid='main_device')
             device = MqttDevice(main_device=main_device, name='Sub Device', uid='sub_device')
             self.assertEqual(
