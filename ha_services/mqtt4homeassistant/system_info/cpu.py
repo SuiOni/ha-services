@@ -49,7 +49,7 @@ class TotalCpuUsageSensor(Sensor):
         kwargs.setdefault('unit_of_measurement', '%')
         kwargs.setdefault('suggested_display_precision', 1)
         kwargs.setdefault('min_value', 0)
-        kwargs.setdefault('max_value', 100)
+        kwargs.setdefault('max_value', 800)
         super().__init__(**kwargs)
 
     def publish_state(self, *args, **kwargs):
@@ -66,7 +66,7 @@ class ProcessCpuUsageSensor(Sensor):
         kwargs.setdefault('unit_of_measurement', '%')
         kwargs.setdefault('suggested_display_precision', 1)
         kwargs.setdefault('min_value', 0)
-        kwargs.setdefault('max_value', 100)
+        kwargs.setdefault('max_value', 800)
         super().__init__(**kwargs)
 
         self.process = psutil.Process(os.getpid())

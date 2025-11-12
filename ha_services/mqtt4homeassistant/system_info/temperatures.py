@@ -1,4 +1,5 @@
 import logging
+import platform
 import statistics
 import typing
 
@@ -16,6 +17,19 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _get_temperatures() -> dict:
+    """Get temperature sensors data, return empty dict if not available."""
+    if platform.system() != 'Linux':
+        logger.debug('Temperature sensors not available on %s', platform.system())
+        return {}
+
+    try:
+        return psutil.sensors_temperatures()  # type: ignore[attr-defined]
+    except AttributeError:
+        logger.debug('psutil.sensors_temperatures() not available')
+        return {}
+
+
 def median_temperatures(temperatures: dict) -> dict:
     result = {}
     for sensor, temps in temperatures.items():
@@ -25,7 +39,7 @@ def median_temperatures(temperatures: dict) -> dict:
 
 
 def get_median_temperatures() -> dict:
-    temperatures = psutil.sensors_temperatures()
+    temperatures = _get_temperatures()
     return median_temperatures(temperatures)
 
 
@@ -35,7 +49,7 @@ class TemperaturesSensors:
 
         self.sensors = {}
 
-        temperatures = psutil.sensors_temperatures()
+        temperatures = _get_temperatures()
         for name in temperatures.keys():
             logger.info('Creating temperature sensor: %r', name)
             sensor = Sensor(
