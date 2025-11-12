@@ -10,7 +10,7 @@ from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo, MQTTMess
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
-from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
+from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState, StatePayload
 from ha_services.mqtt4homeassistant.device import MqttDevice
 
 
@@ -54,7 +54,7 @@ class Light(BaseComponent):
         callback_rgb: Callable = rgb_light_callback,
         component: str = 'light',
         initial_state=NO_STATE,  # set_state() must be called to set the value
-        default_brightness: int,
+        default_brightness: int = 100,
         default_rgb: list[int] = [255,255,255],
         default_switch: str = ON,
         min_brightness: int = 0,
@@ -249,6 +249,12 @@ class Light(BaseComponent):
 
         return info
 
+    def validate_state(self, state: StatePayload):
+        """
+        raise InvalidStateValue if state is not valid
+        """
+        if state is NO_STATE:
+            raise InvalidStateValue(component=self, error_msg=f'Set {self.uid=} {state=} is not allowed')
 
 
     def publish_config(self, client: Client) -> MQTTMessageInfo | None:
