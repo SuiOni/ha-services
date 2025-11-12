@@ -94,6 +94,7 @@ class Sensor(BaseComponent):
             'state_class': self.state_class,  # e.g.: 'measurement'
             'state_topic': f'{self.topic_prefix}/state',
             'json_attributes_topic': f'{self.topic_prefix}/attributes',
+            'platform': self.component,
         }
         if self.suggested_display_precision is not None:
             payload['suggested_display_precision'] = self.suggested_display_precision

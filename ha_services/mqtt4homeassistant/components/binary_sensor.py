@@ -76,5 +76,6 @@ class BinarySensor(BaseComponent):
                 'payload_on': self.ON,
                 'state_topic': f'{self.topic_prefix}/state',
                 'json_attributes_topic': f'{self.topic_prefix}/attributes',
+                'platform': self.component,
             },
         )

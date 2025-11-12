@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable
 
-from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo
+from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo, MQTTMessage
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
@@ -53,13 +53,13 @@ class Switch(BaseComponent):
         }
         self.command_topic = f'{self.topic_prefix}/command'
 
-    def _command_callback(self, client: Client, userdata, message: MQTTMessageInfo):
+    def _command_callback(self, client: Client, userdata, message: MQTTMessage):
         new_state = message.payload.decode()
         assert new_state in self.state2bool, f'Receive invalid state: {new_state}'
 
         self.callback(client=client, component=self, old_state=self.state, new_state=new_state)
 
-    def publish_config(self, client: Client) -> MQTTMessageInfo:
+    def publish_config(self, client: Client) -> MQTTMessageInfo | None:
         info = super().publish_config(client)
 
         client.message_callback_add(self.command_topic, self._command_callback)
@@ -94,5 +94,6 @@ class Switch(BaseComponent):
                 'state_topic': f'{self.topic_prefix}/state',
                 'json_attributes_topic': f'{self.topic_prefix}/attributes',
                 'command_topic': self.command_topic,
+                'platform': self.component,
             },
         )

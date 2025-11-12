@@ -130,10 +130,10 @@ class BaseComponent(abc.ABC):
 
         return info
 
-    def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None]:
+    def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None]:
         config_info = self.publish_config(client)
         state_info = self.publish_state(client)
-        return config_info, state_info
+        return config_info, state_info, None, None
 
     @abc.abstractmethod
     def validate_state(self, state: StatePayload):
