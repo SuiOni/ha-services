@@ -77,6 +77,10 @@ class Light(BaseComponent):
             self.OFF: False,
         }
 
+        # Set brightness limits before calling set_state methods
+        self.min_brightness = min_brightness
+        self.max_brightness = max_brightness
+
         self.set_state_switch(default_switch)
         self.set_state_brightness(default_brightness)
         self.set_state_rgb(default_rgb)
@@ -93,8 +97,6 @@ class Light(BaseComponent):
         self.rgb_command_topic = f'{self.command_topic}/rgb'
         self.rgb_state_topic = f'{self.state_topic}/rgb'
 
-        self.min_brightness = min_brightness
-        self.max_brightness = max_brightness
 
 
     def set_state(self, state: str):
