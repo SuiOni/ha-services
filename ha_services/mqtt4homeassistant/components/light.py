@@ -118,7 +118,7 @@ class Light(BaseComponent):
             raise InvalidStateValue(component=self, error_msg=f'{state=} not in {", ".join(self.state2bool.keys())}')
 
     def validate_state_rgbw(self, state: list[int]):
-        # Skip super().validate_state() since RGB state is a list, not a StatePayload
+        # Skip super().validate_state() since RGBW state is a list, not a StatePayload
         assert len(state) == 4 and all(isinstance(i, int) and i >= 0 and i <= 255 for i in state), f'Receive invalid rgbw state: {state}'
 
     def validate_state_brightness(self, state: int):
