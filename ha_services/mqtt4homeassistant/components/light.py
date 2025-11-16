@@ -291,15 +291,12 @@ class Light(BaseComponent):
                 'command_topic': self.switch_command_topic,
                 'json_attributes_topic': f'{self.topic_prefix}/attributes',
                 'platform': self.component,
-                'brightness': True,
-                'supported_color_modes': ["rgb"],
                 'brightness_state_topic': self.brightness_state_topic,
                 'brightness_command_topic': self.brightness_command_topic,
                 'rgb_state_topic': self.rgb_state_topic,
                 'rgb_command_topic': self.rgb_command_topic,
-                'on_command_type': 'brightness',
-                'payload_off': "OFF"
-                 # 'payload_on': "ON",
+                'payload_off': "OFF",
+                'payload_on': "ON",
                 # 'state_value_template': '{{ value_json.state }}',
                 # 'brightness_value_template': '{{ value_json.brightness }}',
                 # 'rgb_value_template': '{{ value_json.rgb | join(",") }}'
