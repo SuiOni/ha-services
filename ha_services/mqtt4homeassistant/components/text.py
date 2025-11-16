@@ -34,7 +34,7 @@ class Text(BaseComponent):
         component: str = 'text',
         initial_state=NO_STATE,
         min_length: int = 0,
-        max_length: int = 1000,
+        max_length: int = 255,
     ):
         super().__init__(
             device=device,

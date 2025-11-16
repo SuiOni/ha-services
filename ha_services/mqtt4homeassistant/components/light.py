@@ -27,10 +27,10 @@ def brightness_light_callback(*, client: Client, component: 'Light', old_state: 
     component.set_state_brightness(new_state)
     component.publish_state_brightness(client)
 
-def rgb_light_callback(*, client: Client, component: 'Light', old_state: list[int], new_state: list[int]):
+def rgbw_light_callback(*, client: Client, component: 'Light', old_state: list[int], new_state: list[int]):
     logger.info(f'{component.name} state changed: {old_state!r} -> {new_state!r}')
-    component.set_state_rgb(new_state)
-    component.publish_state_rgb(client)
+    component.set_state_rgbw(new_state)
+    component.publish_state_rgbw(client)
 
 
 
@@ -43,6 +43,8 @@ class Light(BaseComponent):
     ON = 'ON'
     OFF = 'OFF'
 
+    MAX_BRIGHTNESS = 255
+
     def __init__(
         self,
         *,
@@ -51,14 +53,14 @@ class Light(BaseComponent):
         uid: str,
         callback_switch: Callable = switch_light_callback,
         callback_brightness: Callable = brightness_light_callback,
-        callback_rgb: Callable = rgb_light_callback,
+        callback_rgbw: Callable = rgbw_light_callback,
         component: str = 'light',
         initial_state=NO_STATE,  # set_state() must be called to set the value
-        default_brightness: int = 100,
-        default_rgb: list[int] = [255,255,255],
+        default_brightness: int = MAX_BRIGHTNESS,
+        default_rgbw: list[int] = [MAX_BRIGHTNESS,MAX_BRIGHTNESS,MAX_BRIGHTNESS, MAX_BRIGHTNESS],
         default_switch: str = ON,
         min_brightness: int = 0,
-        max_brightness: int = 100,
+        max_brightness: int = MAX_BRIGHTNESS,
     ):
         super().__init__(
             device=device,
@@ -70,7 +72,7 @@ class Light(BaseComponent):
 
         self.callback_switch = callback_switch
         self.callback_brightness = callback_brightness
-        self.callback_rgb = callback_rgb
+        self.callback_rgbw = callback_rgbw
 
         self.state2bool = {
             self.ON: True,
@@ -83,7 +85,7 @@ class Light(BaseComponent):
 
         self.set_state_switch(default_switch)
         self.set_state_brightness(default_brightness)
-        self.set_state_rgb(default_rgb)
+        self.set_state_rgbw(default_rgbw)
 
         self.command_topic = f'{self.topic_prefix}/command'
         self.state_topic = f'{self.topic_prefix}/state'
@@ -94,19 +96,19 @@ class Light(BaseComponent):
         self.brightness_command_topic = f'{self.command_topic}/brightness'
         self.brightness_state_topic = f'{self.state_topic}/brightness'
 
-        self.rgb_command_topic = f'{self.command_topic}/rgb'
-        self.rgb_state_topic = f'{self.state_topic}/rgb'
+        self.rgbw_command_topic = f'{self.command_topic}/rgbw'
+        self.rgbw_state_topic = f'{self.state_topic}/rgbw'
 
 
 
     def set_state(self, state: str):
-        raise NotImplementedError('Use set_state_switch, set_state_rgb, or set_state_brightness instead.')
+        raise NotImplementedError('Use set_state_switch, set_state_rgbw, or set_state_brightness instead.')
 
     def publish_state(self, client: Client) -> MQTTMessageInfo | None:
-        raise NotImplementedError('Use publish_state_switch, publish_state_rgb, or publish_state_brightness instead.')
+        raise NotImplementedError('Use publish_state_switch, publish_state_rgbw, or publish_state_brightness instead.')
 
     def get_state(self) -> ComponentState:
-        raise NotImplementedError('Use get_state_switch, get_state_rgb, or get_state_brightness instead.')
+        raise NotImplementedError('Use get_state_switch, get_state_rgbw, or get_state_brightness instead.')
 
 
 
@@ -115,9 +117,9 @@ class Light(BaseComponent):
         if state not in self.state2bool:
             raise InvalidStateValue(component=self, error_msg=f'{state=} not in {", ".join(self.state2bool.keys())}')
 
-    def validate_state_rgb(self, state: list[int]):
+    def validate_state_rgbw(self, state: list[int]):
         # Skip super().validate_state() since RGB state is a list, not a StatePayload
-        assert len(state) == 3 and all(isinstance(i, int) and i >= 0 and i <= 255 for i in state), f'Receive invalid rgb state: {state}'
+        assert len(state) == 4 and all(isinstance(i, int) and i >= 0 and i <= 255 for i in state), f'Receive invalid rgbw state: {state}'
 
     def validate_state_brightness(self, state: int):
         super().validate_state(state)
@@ -132,10 +134,10 @@ class Light(BaseComponent):
             payload=self.state_switch,
         )
 
-    def get_state_rgb(self) -> ComponentState:
+    def get_state_rgbw(self) -> ComponentState:
         return ComponentState(
-            topic=self.rgb_state_topic,
-            payload=','.join(map(str, self.state_rgb))
+            topic=self.rgbw_state_topic,
+            payload=','.join(map(str, self.state_rgbw))
         )
 
     def get_state_brightness(self) -> ComponentState:
@@ -150,10 +152,10 @@ class Light(BaseComponent):
         logger.debug('Set state %r for %r', state, self.uid)
         self.state_switch = state
 
-    def set_state_rgb(self, state: list[int]):
-        self.validate_state_rgb(state)
+    def set_state_rgbw(self, state: list[int]):
+        self.validate_state_rgbw(state)
         logger.debug('Set state %r for %r', state, self.uid)
-        self.state_rgb = state
+        self.state_rgbw = state
 
     def set_state_brightness(self, state: int):
         self.validate_state_brightness(state)
@@ -171,11 +173,11 @@ class Light(BaseComponent):
         self.validate_state_brightness(new_state)
         self.callback_brightness(client=client, component=self, old_state=self.state_brightness, new_state=new_state)
 
-    def _command_rgb_callback(self, client: Client, userdata, message: MQTTMessage):
+    def _command_rgbw_callback(self, client: Client, userdata, message: MQTTMessage):
         payload = message.payload.decode()
         new_state = [int(x.strip()) for x in payload.split(',')]
-        self.validate_state_rgb(new_state)
-        self.callback_rgb(client=client, component=self, old_state=self.state_rgb, new_state=new_state)
+        self.validate_state_rgbw(new_state)
+        self.callback_rgbw(client=client, component=self, old_state=self.state_rgbw, new_state=new_state)
 
 
     def publish_state_switch(self, client: Client) -> MQTTMessageInfo | None:
@@ -203,16 +205,16 @@ class Light(BaseComponent):
         return info
 
 
-    def publish_state_rgb(self, client: Client) -> MQTTMessageInfo | None:
-        if self.state_rgb is NO_STATE:
-            logging.warning(f'Light {self.uid=} rgb state is not set!')
+    def publish_state_rgbw(self, client: Client) -> MQTTMessageInfo | None:
+        if self.state_rgbw is NO_STATE:
+            logging.warning(f'Light {self.uid=} rgbw state is not set!')
             return None
 
         if self._next_publish > time.monotonic():
             logger.debug(f'Publishing {self.uid=}: throttled')
             return None
 
-        state: ComponentState = self.get_state_rgb()
+        state: ComponentState = self.get_state_rgbw()
         logger.debug(f'Publishing {self.uid=} state: {state}')
         info: MQTTMessageInfo = client.publish(
             topic=state.topic,
@@ -264,7 +266,7 @@ class Light(BaseComponent):
 
         client.message_callback_add(self.switch_command_topic, self._command_switch_callback)
         client.message_callback_add(self.brightness_command_topic, self._command_brightness_callback)
-        client.message_callback_add(self.rgb_command_topic, self._command_rgb_callback)
+        client.message_callback_add(self.rgbw_command_topic, self._command_rgbw_callback)
 
         result, _ = client.subscribe(f'{self.command_topic}/#')
         if result is not MQTT_ERR_SUCCESS:
@@ -275,9 +277,9 @@ class Light(BaseComponent):
     def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None]:
         config_info = self.publish_config(client)
         state_info_switch = self.publish_state_switch(client)
-        state_info_rgb = self.publish_state_rgb(client)
+        state_info_rgbw = self.publish_state_rgbw(client)
         state_info_brightness = self.publish_state_brightness(client)
-        return config_info, state_info_switch, state_info_rgb, state_info_brightness
+        return config_info, state_info_switch, state_info_rgbw, state_info_brightness
 
     def get_config(self) -> ComponentConfig:
         return ComponentConfig(
@@ -293,10 +295,12 @@ class Light(BaseComponent):
                 'platform': self.component,
                 'brightness_state_topic': self.brightness_state_topic,
                 'brightness_command_topic': self.brightness_command_topic,
-                'rgb_state_topic': self.rgb_state_topic,
-                'rgb_command_topic': self.rgb_command_topic,
+                'rgbw_state_topic': self.rgbw_state_topic,
+                'rgbw_command_topic': self.rgbw_command_topic,
                 'payload_off': "OFF",
                 'payload_on': "ON",
+                'brightness': True,
+                'supported_color_modes': ["rgbw"]
                 # 'state_value_template': '{{ value_json.state }}',
                 # 'brightness_value_template': '{{ value_json.brightness }}',
                 # 'rgb_value_template': '{{ value_json.rgb | join(",") }}'
