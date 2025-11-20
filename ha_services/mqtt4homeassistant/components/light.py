@@ -101,6 +101,9 @@ class Light(BaseComponent):
         # Keep BaseComponent.state in sync with main switch state for generic tooling/logging:
         self.state = default_switch
 
+        self._next_publish_rgbw = 0
+        self._next_publish_brightness = 0
+        self._next_publish_switch = 0
 
 
     def set_state(self, state: str):
@@ -196,7 +199,7 @@ class Light(BaseComponent):
             logging.warning(f'Light {self.uid=} switch state is not set!')
             return None
 
-        if self._next_publish > time.monotonic():  # reuse BaseComponent throttle for switch
+        if self._next_publish_switch > time.monotonic():  # reuse BaseComponent throttle for switch
             logger.debug(f'Publishing {self.uid=}: throttled (switch)')
             return None
 
@@ -209,7 +212,7 @@ class Light(BaseComponent):
             retain=self.retain,
         )
 
-        self._next_publish = time.monotonic() + self.throttle_sec
+        self._next_publish_switch = time.monotonic() + self.throttle_sec
 
         return info
 
