@@ -33,7 +33,6 @@ def rgbw_light_callback(*, client: Client, component: 'Light', old_state: list[i
     component.publish_state_rgbw(client)
 
 
-
 class Light(BaseComponent):
     """
     MQTT Select component for Home Assistant.
@@ -98,6 +97,9 @@ class Light(BaseComponent):
 
         self.rgbw_command_topic = f'{self.command_topic}/rgbw'
         self.rgbw_state_topic = f'{self.state_topic}/rgbw'
+
+        # Keep BaseComponent.state in sync with main switch state for generic tooling/logging:
+        self.state = default_switch
 
 
 
@@ -179,14 +181,23 @@ class Light(BaseComponent):
         self.validate_state_rgbw(new_state)
         self.callback_rgbw(client=client, component=self, old_state=self.state_rgbw, new_state=new_state)
 
+    def _register_callbacks(self, client: Client):  # BaseComponent hook override
+        client.message_callback_add(self.switch_command_topic, self._command_switch_callback)
+        client.message_callback_add(self.brightness_command_topic, self._command_brightness_callback)
+        client.message_callback_add(self.rgbw_command_topic, self._command_rgbw_callback)
+        result, _ = client.subscribe(f'{self.command_topic}/#')
+        if result is not MQTT_ERR_SUCCESS:
+            logger.error(f'Error subscribing {self.command_topic=}: {result=}')
+        else:
+            logger.debug(f'Subscribed once to {self.command_topic}/#')
 
     def publish_state_switch(self, client: Client) -> MQTTMessageInfo | None:
         if self.state_switch is NO_STATE:
             logging.warning(f'Light {self.uid=} switch state is not set!')
             return None
 
-        if self._next_publish > time.monotonic():
-            logger.debug(f'Publishing {self.uid=}: throttled')
+        if self._next_publish > time.monotonic():  # reuse BaseComponent throttle for switch
+            logger.debug(f'Publishing {self.uid=}: throttled (switch)')
             return None
 
         state: ComponentState = self.get_state_switch()
@@ -200,8 +211,6 @@ class Light(BaseComponent):
 
         self._next_publish = time.monotonic() + self.throttle_sec
 
-        logger.debug(f'Next {self.uid=} config publish: {self._next_publish} {self.throttle_sec=}')
-
         return info
 
 
@@ -210,8 +219,8 @@ class Light(BaseComponent):
             logging.warning(f'Light {self.uid=} rgbw state is not set!')
             return None
 
-        if self._next_publish > time.monotonic():
-            logger.debug(f'Publishing {self.uid=}: throttled')
+        if self._next_publish_rgbw > time.monotonic():
+            logger.debug(f'Publishing {self.uid=}: throttled (rgbw)')
             return None
 
         state: ComponentState = self.get_state_rgbw()
@@ -223,9 +232,7 @@ class Light(BaseComponent):
             retain=self.retain,
         )
 
-        self._next_publish = time.monotonic() + self.throttle_sec
-
-        logger.debug(f'Next {self.uid=} config publish: {self._next_publish} {self.throttle_sec=}')
+        self._next_publish_rgbw = time.monotonic() + self.throttle_sec
 
         return info
 
@@ -234,8 +241,8 @@ class Light(BaseComponent):
             logging.warning(f'Light {self.uid=} brightness state is not set!')
             return None
 
-        if self._next_publish > time.monotonic():
-            logger.debug(f'Publishing {self.uid=}: throttled')
+        if self._next_publish_brightness > time.monotonic():
+            logger.debug(f'Publishing {self.uid=}: throttled (brightness)')
             return None
 
         state: ComponentState = self.get_state_brightness()
@@ -247,35 +254,17 @@ class Light(BaseComponent):
             retain=self.retain,
         )
 
-        self._next_publish = time.monotonic() + self.throttle_sec
-
-        logger.debug(f'Next {self.uid=} config publish: {self._next_publish} {self.throttle_sec=}')
+        self._next_publish_brightness = time.monotonic() + self.throttle_sec
 
         return info
 
     def validate_state(self, state: StatePayload):
-        """
-        raise InvalidStateValue if state is not valid
-        """
+        # Override kept minimal: Light handles multiple internal states separately.
         if state is NO_STATE:
             raise InvalidStateValue(component=self, error_msg=f'Set {self.uid=} {state=} is not allowed')
 
-
-    def publish_config(self, client: Client) -> MQTTMessageInfo | None:
-        info = super().publish_config(client)
-
-        client.message_callback_add(self.switch_command_topic, self._command_switch_callback)
-        client.message_callback_add(self.brightness_command_topic, self._command_brightness_callback)
-        client.message_callback_add(self.rgbw_command_topic, self._command_rgbw_callback)
-
-        result, _ = client.subscribe(f'{self.command_topic}/#')
-        if result is not MQTT_ERR_SUCCESS:
-            logger.error(f'Error subscribing {self.command_topic=}: {result=}')
-
-        return info
-
     def publish(self, client: Client) -> tuple[MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None, MQTTMessageInfo | None]:
-        config_info = self.publish_config(client)
+        config_info = self.publish_config(client)  # BaseComponent publishes config + registers callbacks
         state_info_switch = self.publish_state_switch(client)
         state_info_rgbw = self.publish_state_rgbw(client)
         state_info_brightness = self.publish_state_brightness(client)

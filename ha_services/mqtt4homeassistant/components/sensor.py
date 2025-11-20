@@ -3,7 +3,7 @@ import typing
 from ha_services.exceptions import InvalidStateValue
 from ha_services.ha_data.validators import validate_sensor
 from ha_services.mqtt4homeassistant.components import BaseComponent
-from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
+from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState, StatePayload
 
 
 if typing.TYPE_CHECKING:
@@ -61,26 +61,26 @@ class Sensor(BaseComponent):
         self.min_value = min_value
         self.max_value = max_value
 
-    def validate_state(self, state: str):
+    def validate_state(self, state: StatePayload):  # type: ignore[override]
         super().validate_state(state)
 
-        if self.min_value is not None:
+        # Optional numeric range validation only applies if min/max specified
+        if self.min_value is not None or self.max_value is not None:
             if not isinstance(state, (int, float)):
                 raise InvalidStateValue(component=self, error_msg=f'{state=} is not a number')
-            if state < self.min_value:
+            if self.min_value is not None and state < self.min_value:
                 raise InvalidStateValue(component=self, error_msg=f'{state=} is smaller than {self.min_value=}')
-
-        if self.max_value is not None:
-            if not isinstance(state, (int, float)):
-                raise InvalidStateValue(component=self, error_msg=f'{state=} is not a number')
-            if state > self.max_value:
+            if self.max_value is not None and state > self.max_value:
                 raise InvalidStateValue(component=self, error_msg=f'{state=} is bigger than {self.max_value=}')
 
     def get_state(self) -> ComponentState:
         # e.g.: {'topic': 'homeassistant/sensor/My-device/Chip-Temperature/state', 'payload': '40'}
+        assert self.state is not NO_STATE, 'State must be set before get_state()'
+        from typing import cast
+        payload = cast(StatePayload, self.state)
         return ComponentState(
             topic=f'{self.topic_prefix}/state',
-            payload=self.state,
+            payload=payload,
         )
 
     def get_config(self) -> ComponentConfig:

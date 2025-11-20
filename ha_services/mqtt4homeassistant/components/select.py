@@ -1,11 +1,11 @@
 import logging
 from collections.abc import Callable
 
-from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo, MQTTMessage
+from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessage
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
-from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
+from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState, StatePayload
 from ha_services.mqtt4homeassistant.device import MqttDevice
 
 
@@ -45,38 +45,36 @@ class Select(BaseComponent):
         )
 
         self.callback = callback
-
         self.options = options
         self.set_state(default_option)
-
         self.command_topic = f'{self.topic_prefix}/command'
 
     def _command_callback(self, client: Client, userdata, message: MQTTMessage):
         new_state = message.payload.decode()
         assert new_state in self.options, f'Receive invalid state: {new_state!r}'
-
         self.callback(client=client, component=self, old_state=self.state, new_state=new_state)
 
-    def publish_config(self, client: Client) -> MQTTMessageInfo | None:
-        info = super().publish_config(client)
-
+    def _register_callbacks(self, client: Client):  # hook override
         client.message_callback_add(self.command_topic, self._command_callback)
         result, _ = client.subscribe(self.command_topic)
         if result is not MQTT_ERR_SUCCESS:
             logger.error(f'Error subscribing {self.command_topic=}: {result=}')
+        else:
+            logger.debug(f'Subscribed once to {self.command_topic}')
 
-        return info
-
-    def validate_state(self, state: str):
+    def validate_state(self, state: StatePayload):  # type: ignore[override]
         super().validate_state(state)
-        if state not in self.options:
+        if not isinstance(state, str) or state not in self.options:
             raise InvalidStateValue(component=self, error_msg=f'{state=} not in {self.options=}')
 
     def get_state(self) -> ComponentState:
         # e.g.: {'topic': 'homeassistant/select/My-device/My-Relay/state', 'payload': 'ON'}
+        assert self.state is not NO_STATE and isinstance(self.state, str), 'State must be set before get_state()'
+        from typing import cast
+        payload = cast(StatePayload, self.state)
         return ComponentState(
             topic=f'{self.topic_prefix}/state',
-            payload=self.state,
+            payload=payload,
         )
 
     def get_config(self) -> ComponentConfig:

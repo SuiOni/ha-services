@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable
 
-from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo, MQTTMessage
+from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessage
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
@@ -66,15 +66,13 @@ class Text(BaseComponent):
 
         self.callback(client=client, component=self, old_state=self.state, new_state=new_state)
 
-    def publish_config(self, client: Client) -> MQTTMessageInfo | None:
-        info = super().publish_config(client)
-
+    def _register_callbacks(self, client: Client):  # hook override
         client.message_callback_add(self.command_topic, self._command_callback)
         result, _ = client.subscribe(self.command_topic)
         if result is not MQTT_ERR_SUCCESS:
             logger.error(f'Error subscribing {self.command_topic=}: {result=}')
-
-        return info
+        else:
+            logger.debug(f'Subscribed once to {self.command_topic}')
 
     def validate_state(self, state: StatePayload):
         super().validate_state(state)
@@ -90,12 +88,12 @@ class Text(BaseComponent):
 
     def get_state(self) -> ComponentState:
         # Ensure we have a valid state before returning it
-        if self.state is NO_STATE:
-            raise ValueError(f"Component {self.uid} state is not set")
-
+        assert self.state is not NO_STATE, f"Component {self.uid} state is not set"
+        from typing import cast
+        payload = cast(StatePayload, self.state)
         return ComponentState(
             topic=f'{self.topic_prefix}/state',
-            payload=str(self.state),  # Explicitly cast to string to match StatePayload type
+            payload=payload,
         )
 
     def get_config(self) -> ComponentConfig:

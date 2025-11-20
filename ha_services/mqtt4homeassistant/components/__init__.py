@@ -6,6 +6,8 @@ import typing
 from functools import cache
 
 from frozendict import frozendict
+
+
 from paho.mqtt.client import Client, MQTTMessageInfo
 
 import ha_services
@@ -76,6 +78,13 @@ class BaseComponent(abc.ABC):
         self._next_config_publish = 0
         self._next_publish = 0
 
+        # Guard for one-time callback registration by subclasses:
+        self._callbacks_registered = False
+
+    def _register_callbacks(self, client: Client):  # hook for subclasses
+        """Subclasses may override to add message_callback_add + subscribe calls."""
+        return
+
     def _get_config_kwargs(self) -> dict:
         if self._config_kwargs_cache is None:
             config: ComponentConfig = self.get_config()
@@ -99,10 +108,24 @@ class BaseComponent(abc.ABC):
 
         config_kwargs = self._get_config_kwargs()
         logger.info(f'Publishing {self.uid=} config: {config_kwargs}')
-        info: MQTTMessageInfo = client.publish(**config_kwargs)
+        try:
+            info: MQTTMessageInfo = client.publish(**config_kwargs)
+        except Exception:  # defensive catch for MQTT client errors
+            logger.exception('Failed to publish config for %s', self.uid)
+            return None
 
         self._next_config_publish = time.monotonic() + self.config_throttle_sec
         logger.debug(f'Next {self.uid=} config publish: {self._next_config_publish} {self.config_throttle_sec=}')
+
+        # One-time callback registration (subclass override)
+        if not self._callbacks_registered:
+            try:
+                self._register_callbacks(client)
+            except Exception:
+                logger.exception('Failed registering callbacks for %s', self.uid)
+            else:
+                self._callbacks_registered = True
+                logger.debug('Registered callbacks once for %s', self.uid)
 
         return info
 
@@ -117,12 +140,16 @@ class BaseComponent(abc.ABC):
 
         state: ComponentState = self.get_state()
         logger.debug(f'Publishing {self.uid=} state: {state}')
-        info: MQTTMessageInfo = client.publish(
-            topic=state.topic,
-            payload=state.payload,
-            qos=self.qos,
-            retain=self.retain,
-        )
+        try:
+            info: MQTTMessageInfo = client.publish(
+                topic=state.topic,
+                payload=state.payload,
+                qos=self.qos,
+                retain=self.retain,
+            )
+        except Exception:
+            logger.exception('Failed to publish state for %s', self.uid)
+            return None
 
         self._next_publish = time.monotonic() + self.throttle_sec
 

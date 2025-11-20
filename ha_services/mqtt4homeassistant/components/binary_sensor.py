@@ -2,7 +2,7 @@ import logging
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
-from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
+from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState, StatePayload
 from ha_services.mqtt4homeassistant.device import MqttDevice
 
 
@@ -46,21 +46,24 @@ class BinarySensor(BaseComponent):
 
     @property
     def is_on(self) -> bool | None:
-        if self.state is NO_STATE:
+        if self.state is NO_STATE or not isinstance(self.state, str):
             logger.warning('State not set, yet.')
             return None
         return self.state2bool[self.state]
 
-    def validate_state(self, state: str):
+    def validate_state(self, state: StatePayload):  # type: ignore[override]
         super().validate_state(state)
-        if state not in self.state2bool:
-            raise InvalidStateValue(component=self, error_msg=f'{state=} not in {self.state2bool.keys()}')
+        if not isinstance(state, str) or state not in self.state2bool:
+            raise InvalidStateValue(component=self, error_msg=f'{state=} not in {tuple(self.state2bool.keys())}')
 
     def get_state(self) -> ComponentState:
         # e.g.: {'topic': 'homeassistant/switch/My-device/My-BinarySensor/state', 'payload': 'ON'}
+        assert self.state is not NO_STATE and isinstance(self.state, str), 'State must be set before get_state()'
+        from typing import cast
+        payload = cast(StatePayload, self.state)
         return ComponentState(
             topic=f'{self.topic_prefix}/state',
-            payload=self.state,
+            payload=payload,
         )
 
     def get_config(self) -> ComponentConfig:

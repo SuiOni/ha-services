@@ -1,11 +1,11 @@
 import logging
 from collections.abc import Callable
 
-from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessageInfo, MQTTMessage
+from paho.mqtt.client import MQTT_ERR_SUCCESS, Client, MQTTMessage  # removed MQTTMessageInfo
 
 from ha_services.exceptions import InvalidStateValue
 from ha_services.mqtt4homeassistant.components import BaseComponent
-from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState
+from ha_services.mqtt4homeassistant.data_classes import NO_STATE, ComponentConfig, ComponentState, StatePayload
 from ha_services.mqtt4homeassistant.device import MqttDevice
 
 
@@ -52,33 +52,36 @@ class Switch(BaseComponent):
             self.OFF: False,
         }
         self.command_topic = f'{self.topic_prefix}/command'
+        # _callbacks_registered flag now handled by BaseComponent
 
     def _command_callback(self, client: Client, userdata, message: MQTTMessage):
         new_state = message.payload.decode()
         assert new_state in self.state2bool, f'Receive invalid state: {new_state}'
-
         self.callback(client=client, component=self, old_state=self.state, new_state=new_state)
 
-    def publish_config(self, client: Client) -> MQTTMessageInfo | None:
-        info = super().publish_config(client)
-
+    def _register_callbacks(self, client: Client):  # override BaseComponent hook
         client.message_callback_add(self.command_topic, self._command_callback)
         result, _ = client.subscribe(self.command_topic)
         if result is not MQTT_ERR_SUCCESS:
             logger.error(f'Error subscribing {self.command_topic=}: {result=}')
+        else:
+            logger.debug(f'Subscribed once to {self.command_topic}')
 
-        return info
-
-    def validate_state(self, state: str):
+    def validate_state(self, state: StatePayload):  # type: ignore[override]
         super().validate_state(state)
+        if state is NO_STATE:
+            raise InvalidStateValue(component=self, error_msg='NO_STATE is not a valid published state')
         if state not in self.state2bool:
             raise InvalidStateValue(component=self, error_msg=f'{state=} not in {", ".join(self.state2bool.keys())}')
 
     def get_state(self) -> ComponentState:
         # e.g.: {'topic': 'homeassistant/switch/My-device/My-Relay/state', 'payload': 'ON'}
+        assert self.state is not NO_STATE, 'State must be set before get_state() is called'
+        from typing import cast
+        state_payload = cast(StatePayload, self.state)
         return ComponentState(
             topic=f'{self.topic_prefix}/state',
-            payload=self.state,
+            payload=state_payload,
         )
 
     def get_config(self) -> ComponentConfig:
